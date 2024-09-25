@@ -4,7 +4,7 @@ Welcome to SurpriseMe, a chatbot-driven platform designed to help users find the
 
 ##  ![image](https://github.com/user-attachments/assets/79b9700e-c18d-4cc1-8f60-1a1cce6d73b2) Features
   - **Holiday-Themed Gift Suggestions:** Curated for both Valentine's Day and Christmas, ensuring a unique and relevant selection of gift ideas.
-  - **Personalized Recommendations:** Get suggestions based on key factors like age, gender, relationship, occasion, hobbies, age, and budget.
+  - **Personalized Recommendations:** Get suggestions based on key factors like age, gender, relationship, occasion, hobbies, and budget.
   - **Interactive Chatbot:** Users can interact with a chatbot to easily find gift ideas, narrowing down options through a conversation.
   - **User-Friendly Design:** A clean and intuitive interface.
   - **Gift Links & Images:** Each recommendation comes with a purchase link and an image for easy browsing.
