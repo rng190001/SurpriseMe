@@ -8,3 +8,8 @@ Welcome to SurpriseMe, a chatbot-driven platform designed to help users find the
   - **Interactive Chatbot:** Users can interact with a chatbot to easily find gift ideas, narrowing down options through a conversation.
   - **User-Friendly Design:** A clean and intuitive interface.
   - **Gift Links & Images:** Each recommendation comes with a purchase link and an image for easy browsing.
+
+## ![image](https://github.com/user-attachments/assets/b37223d7-f6f0-4b1e-bbac-3a67b167834b) Dataset 
+  - The dataset is **custom-made** to ensure accurate and personalized recommendations for major holidays, such as Christmas and Valentine's Day.
+  - It includes fields such as Holiday, Gender, Age, Relationship, Budget, Max Budget, Associated Hobbies, Gift Title, Gift Summary, Rating, and Link.
+  - The data is preprocessed to extract relevant information, helping to provide tailored gift recommendations for the user.
