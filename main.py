@@ -36,8 +36,9 @@ def preprocess_data(text):
     lemmatizer = WordNetLemmatizer()
 
     # Remove all punctuation, set all words to lower case, and split by spaces
-    cleaned_sentence = re.sub(r'[^\w\s-]', '',text).lower()
+    cleaned_sentence = re.sub(r'[^\w\s-]', ' ',text).lower()
     cleaned_sentence = re.split(r'\s+', cleaned_sentence.strip())
+    
 
     # Now store all words that are not stopwords
     no_stopwords = [w for w in cleaned_sentence if w not in stopwords]
@@ -72,9 +73,9 @@ def main():
     # Create a dictionary where key: gift ID, value: title + summary combined 
     giftDescriptors = dict(zip(preprocessed_giftsData['Gift ID'], preprocessed_giftsData['Gift Title']+preprocessed_giftsData['Gift Summary']))
    
-    # print(giftDescriptors[2])
+    print(giftDescriptors[200])
     # print(giftsData['Gift Summary'])
-    print(preprocessed_giftsData['Gift Summary'])
+    # print(preprocessed_giftsData['Gift Summary'])
 
 # Runs the whole program
 if __name__ == '__main__':
