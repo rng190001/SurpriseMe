@@ -8,7 +8,7 @@ from nltk.corpus import stopwords, wordnet
 from nltk import word_tokenize, pos_tag, ne_chunk
 stopwords = set(stopwords.words('english'))
 '''
-UNCOMMENT IF RUNNING FOR FIRST TIME: After downloading this all once, you don't have to download it again
+#UNCOMMENT IF RUNNING FOR FIRST TIME: After downloading this all once, you don't have to download it again
 nltk.download('punkt')
 nltk.download('stopwords')
 nltk.download('punkt_tab')
@@ -38,7 +38,6 @@ def preprocess_data(text):
     # Remove all punctuation, set all words to lower case, and split by spaces
     cleaned_sentence = re.sub(r'[^\w\s-]', ' ',text).lower()
     cleaned_sentence = re.split(r'\s+', cleaned_sentence.strip())
-    
 
     # Now store all words that are not stopwords
     no_stopwords = [w for w in cleaned_sentence if w not in stopwords]
