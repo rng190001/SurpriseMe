@@ -175,7 +175,12 @@ def main():
     word_document_counts = get_document_counts(gift_descriptions)
 
     # Calculate tf-idfs using a given word
-    calculate_tf_idf('necklace', gift_descriptions, gift_word_counts, word_document_counts)
+    calculate_tf_idf('mug', gift_descriptions, gift_word_counts, word_document_counts)
+
+    # Filter gifts based on occasion -- We can use similar logic to filter based on user's response
+    # before applying cosine similarity for gifts closely related to associated hobbies/items
+    christmas_gifts = preprocessed_giftsData[preprocessed_giftsData['Holiday'] == 'Christmas']
+    print(christmas_gifts)
 
     # print(preprocessed_giftsData['Associated Hobbies'])
     # print(gift_descriptions[200])
