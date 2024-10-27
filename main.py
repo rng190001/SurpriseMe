@@ -1,3 +1,4 @@
+#Uncomment the downloads when running for the first time
 import pandas as pd
 import nltk
 import re
@@ -7,18 +8,16 @@ from nltk import sent_tokenize
 from nltk.stem import WordNetLemmatizer
 from nltk.corpus import stopwords, wordnet
 from nltk import word_tokenize, pos_tag, ne_chunk
+#nltk.download('punkt')
+#nltk.download('stopwords')
+#nltk.download('punkt_tab')
+#nltk.download('wordnet')
+#nltk.download('maxent_ne_chunker_tab')
+#nltk.download('words')
+#nltk.download('averaged_perceptron_tagger_eng')
+#nltk.download('averaged_perceptron_tagger')
 stopwords = set(stopwords.words('english'))
-'''
-#UNCOMMENT IF RUNNING FOR FIRST TIME: After downloading this all once, you don't have to download it again
-nltk.download('punkt')
-nltk.download('stopwords')
-nltk.download('punkt_tab')
-nltk.download('wordnet')
-nltk.download('maxent_ne_chunker_tab')
-nltk.download('words')
-nltk.download('averaged_perceptron_tagger_eng')
-nltk.download('averaged_perceptron_tagger')
-'''
+
 def calculate_tf_idf(word, gift_descriptions, gift_word_counts, word_document_counts):
     # Calculate TF-IDF any given word
     tf_idfs = dict()
@@ -38,7 +37,7 @@ def calculate_tf_idf(word, gift_descriptions, gift_word_counts, word_document_co
             # If the word is not used to describe the gift, don't add it to the tf-idf dictionary
             # tf_idfs[key] = 0
             continue
-    
+
     # After calculating the tf-idfs for every gift and the given word, sort in descending
     # order to see the highest tf-idfs at the top
     sorted_tf_idfs = dict(sorted(tf_idfs.items(), key=lambda item: item[1], reverse=True))
@@ -82,7 +81,7 @@ def get_document_counts(giftDescriptions):
     return document_counts_for_word
 
 def get_word_counts(giftDescriptions):
-    # Create a dictionary where key: gift ID, value: dictionary of word counts 
+    # Create a dictionary where key: gift ID, value: dictionary of word counts
     gift_word_counts = dict()
 
     # Go through the description of each gift
@@ -95,7 +94,7 @@ def get_word_counts(giftDescriptions):
                 gift_word_counts[key][word] += 1
             else:
                 gift_word_counts[key][word] = 1
-    
+
         ''' TO TEST
         i = 0
         for key, value in word_counts.items():
@@ -104,14 +103,13 @@ def get_word_counts(giftDescriptions):
             if i == 30:
                 break
         '''
-    
+
     return gift_word_counts
 
-# Convert nltk POS tags to WordNet POS tags
 def get_wordnet_pos(tree_tag):
     # Assign Verb tag
     if tree_tag.startswith('V'):
-        return wordnet.VERB  
+        return wordnet.VERB
     # Assign Noun tag
     elif tree_tag.startswith('N'):
         return wordnet.NOUN
@@ -143,10 +141,46 @@ def preprocess_data(text):
 
     return lemmatized_words
 
+def calculate_cosine_similarity(vector1, vector2):
+    # Calculate the dot product and magnitudes
+    dot_product = sum(vector1[word] * vector2[word] for word in vector1 if word in vector2)
+    magnitude1 = math.sqrt(sum(value**2 for value in vector1.values()))
+    magnitude2 = math.sqrt(sum(value**2 for value in vector2.values()))
+
+    if not magnitude1 or not magnitude2:
+        return 0.0
+    return dot_product / (magnitude1 * magnitude2)
+
+def create_tf_idf_matrix(gift_descriptions, gift_word_counts, word_document_counts):
+    tf_idf_matrix = {}
+    for gift_id, word_counts in gift_word_counts.items():
+        tf_idf_vector = calculate_tf_idf_vector(word_counts, gift_descriptions[gift_id], word_document_counts)
+        tf_idf_matrix[gift_id] = tf_idf_vector
+    return tf_idf_matrix
+
+def calculate_tf_idf_vector(word_counts, description, word_document_counts):
+    total_terms = sum(word_counts.values())
+    tf_idf_vector = {}
+    for word in word_counts:
+        term_frequency = word_counts[word] / total_terms
+        inverse_document_frequency = math.log10(len(description) / word_document_counts[word]) if word in word_document_counts else 0
+        tf_idf_vector[word] = term_frequency * inverse_document_frequency
+    return tf_idf_vector
+
+def find_similar_gifts(gift_id, tf_idf_matrix):
+    target_vector = tf_idf_matrix[gift_id]
+    similarities = {}
+    for other_id, vector in tf_idf_matrix.items():
+        if other_id != gift_id:
+            similarity = calculate_cosine_similarity(target_vector, vector)
+            similarities[other_id] = similarity
+    # Sort by similarity score in descending order
+    return dict(sorted(similarities.items(), key=lambda item: item[1], reverse=True)[:10])
+
 def main():
 
     # Read in the CSV file
-    giftsFile = "./GiftDatabase.csv"
+    giftsFile = "./giftDB.csv"
     giftsData = pd.read_csv(giftsFile)
 
     # Drop any rows that have null cells
@@ -167,7 +201,7 @@ def main():
 
     # Create a dictionary where key: gift ID, value: title + summary combined
     gift_descriptions = dict(zip(preprocessed_giftsData['Gift ID'], preprocessed_giftsData['Gift Title']+preprocessed_giftsData['Gift Summary']))
-   
+
     # Get the word counts of every word in the description of each gift
     gift_word_counts = get_word_counts(gift_descriptions)
 
@@ -186,6 +220,17 @@ def main():
     # print(gift_descriptions[200])
     # print(giftsData['Gift Summary'])
     # print(preprocessed_giftsData['Gift Summary'])
+
+    # Create TF-IDF matrix
+    tf_idf_matrix = create_tf_idf_matrix(gift_descriptions, gift_word_counts, word_document_counts)
+
+    # Example: Find similar gifts to a specific gift ID
+    gift_id = 52
+    similar_gifts = find_similar_gifts(gift_id, tf_idf_matrix)
+
+    print(f"Top 10 similar gifts to {gift_id}:")
+    for similar_gift_id, similarity in similar_gifts.items():
+        print(f"Gift ID: {similar_gift_id}, Similarity: {similarity:.4f}")
 
 # Runs the whole program
 if __name__ == '__main__':
