@@ -165,6 +165,10 @@ def main():
     # Preprocess gift summaries: tokenize, remove stopwords, lemmatize
     preprocessed_giftsData['Gift Summary'] = preprocessed_giftsData['Gift Summary'].apply(lambda x: preprocess_data(x))
 
+    preprocessed_giftsData['Relationship'] = preprocessed_giftsData['Relationship'].apply(lambda x: preprocess_data(x))
+
+    #print(preprocessed_giftsData['Relationship'])
+
     # Create a dictionary where key: gift ID, value: title + summary combined
     gift_descriptions = dict(zip(preprocessed_giftsData['Gift ID'], preprocessed_giftsData['Gift Title']+preprocessed_giftsData['Gift Summary']))
    
@@ -175,13 +179,15 @@ def main():
     word_document_counts = get_document_counts(gift_descriptions)
 
     # Calculate tf-idfs using a given word
-    calculate_tf_idf('mug', gift_descriptions, gift_word_counts, word_document_counts)
+    # calculate_tf_idf('mug', gift_descriptions, gift_word_counts, word_document_counts)
 
     # Filter gifts based on occasion -- We can use similar logic to filter based on user's response
     # before applying cosine similarity for gifts closely related to associated hobbies/items
     christmas_gifts = preprocessed_giftsData[preprocessed_giftsData['Holiday'] == 'Christmas']
-    print(christmas_gifts)
+    # print(christmas_gifts)
 
+    filter_by_relation = christmas_gifts[christmas_gifts['Relationship'].apply(lambda x: 'partner' in x)]
+    print(filter_by_relation['Relationship'])
     # print(preprocessed_giftsData['Associated Hobbies'])
     # print(gift_descriptions[200])
     # print(giftsData['Gift Summary'])
