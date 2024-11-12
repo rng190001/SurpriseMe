@@ -36,8 +36,8 @@ def validate_input(text, category):
         if text.lower().strip("") not in valid_hobbies:
             return False, f"Invalid hobby '{text}'. Please select from: {', '.join(valid_hobbies)}."
     elif category == "fashion":
-        if text.lower() not in ["clothing", "accessories", "both"]:
-          return False, "Please select one option between clothing, accessories, or both."
+        if text.lower() not in ["clothing", "accessory", "both"]:
+          return False, "Please select one option between clothing, accessory, or both."
     return True, ""
 
 def start_chatbot():
@@ -118,17 +118,17 @@ def start_chatbot():
 
     # Given fashion hobby is selected, process follow up question
     if fashion:
-      temp_fashion = ask_question("Since you selected fashion, would you prefer to look into clothing, accessories, or both?")
+      temp_fashion = ask_question("Since you selected fashion, would you prefer to look into a clothing, accessory, or both?")
       valid, message = validate_input(temp_fashion, "fashion")
       while not valid:
         temp_fashion = ask_question(message)
         valid, message = validate_input(temp_fashion, "fashion")
       if temp_fashion == "both":
-        user_info["hobbies"].extend(["clothing", "accessories"])
+        user_info["hobbies"].extend(["clothing", "accessory"])
       elif temp_fashion == "clothing":
         user_info["hobbies"].append("clothing")
-      elif temp_fashion == "accessories":
-        user_info["hobbies"].append("accessories")
+      elif temp_fashion == "accessory":
+        user_info["hobbies"].append("accessory")
 
     return user_info
 
