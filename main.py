@@ -259,8 +259,8 @@ def recommend_gifts_based_on_input(user_input, gift_data):
 
 def main():
     while True:
-        print("\nWelcome to the Gift Finder! Please input your option.")
-        print("1. Find a gift!")
+        print("\nWelcome to Surprise Me! Please input your option.")
+        print("1. Surprise me with a gift!")
         print("2. Exit")
 
         # Get user input
@@ -270,7 +270,7 @@ def main():
             # Logic for finding a new gift
             find_new_gift()
         elif choice == '2':
-            print("Thank you for using the Gift Finder! Goodbye!")
+            print("Thank you for using Surprise Me! Goodbye!")
             break
         else:
             print("Invalid input. Please choose 1 or 2.")
