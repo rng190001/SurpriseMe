@@ -7,18 +7,22 @@ Original file is located at
     https://colab.research.google.com/drive/1myodxTWqaEeYzmkkDVZA3J_lfIWhgOwc
 """
 
-!pip install -U nltk
+#!pip install -U nltk
 from transformers import AutoTokenizer, AutoModel
 import torch
 import pandas as pd
 import nltk
 import numpy as np
+# Supress the SettingWithCopy Warning
+pd.options.mode.chained_assignment = None 
 # Download necessary resources before other nltk imports
+'''
 nltk.download('averaged_perceptron_tagger')
 nltk.download('averaged_perceptron_tagger_eng')
 nltk.download('punkt')
 nltk.download('stopwords')
 nltk.download('wordnet')
+'''
 import re
 import math
 from nltk import word_tokenize
@@ -321,7 +325,7 @@ def find_new_gift():
     # Pagination logic
     start_index = 0
     page_size = 5
-
+    gift_counter = 1
     while True:
         # Display the current page of recommendations
         end_index = start_index + page_size
@@ -329,7 +333,13 @@ def find_new_gift():
 
         print(f"\nShowing recommendations {start_index + 1} to {min(end_index, len(recommendations))}:")
         for _, row in current_page.iterrows():
-            print(f"Gift ID: {row['Gift ID']} Title: {row['Gift Title']}, Similarity: {row['Similarity']:.4f}")
+            #print(f"Gift ID: {row['Gift ID']} Title: {row['Gift Title']}, Similarity: {row['Similarity']:.4f}")
+            print(gift_counter, ".", f"{row['Gift Title']}")
+            print(f"{row['Gift Summary']}")
+            print(f"Price Range: {row['Budget']} - {row['Max Budget']}")
+            print(f"Visit {row['Link']}")
+            print(f"Gift ID: {row['Gift ID']}\n")
+            gift_counter += 1
 
         # Check if there are more items to display
         if end_index >= len(recommendations):
