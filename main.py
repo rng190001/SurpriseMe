@@ -7,6 +7,29 @@ Original file is located at
     https://colab.research.google.com/drive/1myodxTWqaEeYzmkkDVZA3J_lfIWhgOwc
 """
 
+!pip install -U nltk
+from transformers import AutoTokenizer, AutoModel
+import torch
+import pandas as pd
+import nltk
+import numpy as np
+# Download necessary resources before other nltk imports
+nltk.download('averaged_perceptron_tagger')
+nltk.download('averaged_perceptron_tagger_eng')
+nltk.download('punkt')
+nltk.download('stopwords')
+nltk.download('wordnet')
+import re
+import math
+from nltk import word_tokenize
+from nltk import sent_tokenize
+from nltk.stem import WordNetLemmatizer
+from nltk.corpus import stopwords, wordnet
+from nltk import pos_tag
+from sklearn.preprocessing import MinMaxScaler
+from sklearn.metrics.pairwise import cosine_similarity
+stopwords = set(stopwords.words('english'))
+
 def calculate_tf_idf(word, gift_descriptions, gift_word_counts, word_document_counts):
     # Calculate TF-IDF any given word
     tf_idfs = dict()
@@ -157,19 +180,6 @@ def calculate_tf_idf_vector(word_counts, description, word_document_counts):
         tf_idf_vector[word] = term_frequency * inverse_document_frequency
     return tf_idf_vector
 
-def find_similar_gifts(gift_id, tf_idf_matrix):
-    target_vector = tf_idf_matrix[gift_id]
-    similarities = {}
-    for other_id, vector in tf_idf_matrix.items():
-        if other_id != gift_id:
-            similarity = calculate_cosine_similarity(target_vector, vector)
-            similarities[other_id] = similarity
-    # Sort by similarity score in descending order
-    return dict(sorted(similarities.items(), key=lambda item: item[1], reverse=True)[:10])
-
-from transformers import AutoTokenizer, AutoModel
-import torch
-
 tokenizer = AutoTokenizer.from_pretrained("sentence-transformers/all-MiniLM-L6-v2")
 model = AutoModel.from_pretrained("sentence-transformers/all-MiniLM-L6-v2")
 
@@ -191,29 +201,6 @@ def get_bert_embeddings(texts):
 def ask_question(prompt):
     return input(f"{prompt}\nYou: ")
 
-!pip install -U nltk
-
-import pandas as pd
-import nltk
-import numpy as np
-# Download necessary resources before other nltk imports
-nltk.download('averaged_perceptron_tagger')
-nltk.download('averaged_perceptron_tagger_eng')
-nltk.download('punkt')
-nltk.download('stopwords')
-nltk.download('wordnet')
-import re
-import math
-from nltk import word_tokenize
-from nltk import sent_tokenize
-from nltk.stem import WordNetLemmatizer
-from nltk.corpus import stopwords, wordnet
-from nltk import pos_tag
-from sklearn.preprocessing import MinMaxScaler
-from sklearn.metrics.pairwise import cosine_similarity
-stopwords = set(stopwords.words('english'))
-
-
 def split_database_by_holiday(gift_data, holiday):
     #Splits gift database by specified holiday.
     if holiday.lower() == "christmas":
@@ -230,7 +217,7 @@ def split_database_by_gender(gift_data, gender):
         return gift_data[gift_data['Gender'].str.contains(r"\bFemale\b", case=False, regex=True)]
     return gift_data
 
-def recommend_gifts_based_on_input(user_input, gift_data):
+def recommend_gifts(user_input, gift_data):
     # Preprocess input
     cleaned_input = preprocess_data(user_input)
     input_sentence = user_input
@@ -303,7 +290,7 @@ def recommend_gifts_based_on_input(user_input, gift_data):
     gender_filtered_data['Similarity'] = overall_similarity_scores
 
     # Sort by similarity score and return top recommendations
-    recommendations = gender_filtered_data.sort_values(by='Similarity', ascending=False).head(50)
+    recommendations = gender_filtered_data.sort_values(by='Similarity', ascending=False).head(20)
 
     return recommendations
 
@@ -329,7 +316,7 @@ def find_new_gift():
     print("\nLet's find a new gift!")
     # Get user input for gift preferences
     user_input = input("Describe the gift or holiday preferences in one sentence: ")
-    recommendations = recommend_gifts_based_on_input(user_input, preprocessed_giftsData)
+    recommendations = recommend_gifts(user_input, preprocessed_giftsData)
 
     # Pagination logic
     start_index = 0
@@ -366,3 +353,4 @@ if __name__ == "__main__":
     #Preprocess data
     preprocessed_giftsData = giftsData.copy()
     main()
+
