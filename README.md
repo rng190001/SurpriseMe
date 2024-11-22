@@ -8,7 +8,11 @@ Welcome to SurpriseMe, a chatbot-driven platform designed to help users find the
   - **Interactive Chatbot:** Users can interact with a chatbot to easily find gift ideas, narrowing down options through a conversation.
   - **User-Friendly Design:** A clean and intuitive interface.
   - **Gift Links & Images:** Each recommendation comes with a purchase link and an image for easy browsing.
-
+  - **NLP Techniques & Models:**
+      - BERT (Bidirectional Encoder Representations from Transformers) was used to create context-aware embeddings for the user queries and the dataset. This model captures deep relationships between words beyond surface-level similarity. This model then is producing a cosine similarity value that measures how similar two sentences are to each other.
+      - TF-IDF was used to calculate how important a word is in the context of the gift dataset. This model ultimately helps us measure the similarity between the user input and gift descriptions from the gift database.
+      - Cosine Similarity was used to calculate the final measures to capture similar gifts to the user queries. The TF-IDF scores and the BERT scores were weighted to calculate the overall similarities of the gifts.
+    
 ## ![image](https://github.com/user-attachments/assets/b37223d7-f6f0-4b1e-bbac-3a67b167834b) Dataset 
   - The dataset is **custom-made** to ensure accurate and personalized recommendations for major holidays, such as Christmas and Valentine's Day.
   - It includes fields such as Holiday, Gender, Age, Relationship, Budget, Max Budget, Associated Hobbies, Gift Title, Gift Summary, Rating, and Link.
