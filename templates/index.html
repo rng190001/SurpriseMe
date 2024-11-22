@@ -7,6 +7,7 @@
 </head>
 <body>
     <h1>Welcome to Surprise Me!</h1>
+    
     <form id="userInputForm" method="POST" action="/recommend">
         <label for="user_input">Describe the gift or holiday preferences in one sentence:</label>
         <input type="text" id="user_input" name="user_input" required>
@@ -14,8 +15,11 @@
     </form>
     
     <div id="giftList"></div>
+    <!-- Load More button, hidden initially -->
     <button id="loadMoreBtn" style="display:none;" onclick="loadMoreGifts()">Load More</button>
-    <button onclick="resetSession()">Exit</button>
+    
+    <!-- Exit button hidden initially -->
+    <button id="exitBtn" style="display:none;" onclick="resetSession()">Exit</button>
 
     <script>
         // Handle form submission for getting gift recommendations
@@ -53,14 +57,16 @@
                         `;
                         giftList.appendChild(giftElement);
                     });
-
-                    // Show or hide the "Load More" button based on the message
+                    // Show or hide the "Load More" button based on the message from the backend (if ther
+                    // is more recommendations to show)
                     const loadMoreBtn = document.getElementById('loadMoreBtn');
                     if (data.message.includes("Would you like to see the next 5 recommendations?")) {
                         loadMoreBtn.style.display = 'inline-block';
                     } else {
                         loadMoreBtn.style.display = 'none';
-                    }
+                    }       
+                     // Show the "Exit" button     
+                    document.getElementById('exitBtn').style.display = 'inline-block';
                 } else {
                     giftList.innerHTML = `<p>${data.message}</p>`;
                 }
@@ -98,6 +104,8 @@
                     if (data.message.includes("No more gifts available.")) {
                         loadMoreBtn.style.display = 'none';
                     }
+                    // Show the exit button
+                    document.getElementById('exitBtn').style.display = 'inline-block';
                 } else {
                     giftList.innerHTML = `<p>${data.message}</p>`;
                 }
@@ -112,6 +120,10 @@
 
                     // Clear the input field
                     document.getElementById('user_input').value = '';
+
+                    // Hide Load More and Exit buttons
+                    loadMoreBtn.style.display = 'none';
+                    document.getElementById('exitBtn').style.display = 'none';
                 });
         }
     </script>
