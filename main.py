@@ -8,6 +8,7 @@ Original file is located at
 """
 
 #!pip install -U nltk
+from flask import Flask, render_template, request, jsonify
 from transformers import AutoTokenizer, AutoModel
 import torch
 import pandas as pd
@@ -16,13 +17,11 @@ import numpy as np
 # Supress the SettingWithCopy Warning
 pd.options.mode.chained_assignment = None 
 # Download necessary resources before other nltk imports
-'''
 nltk.download('averaged_perceptron_tagger')
 nltk.download('averaged_perceptron_tagger_eng')
 nltk.download('punkt')
 nltk.download('stopwords')
 nltk.download('wordnet')
-'''
 import re
 import math
 from nltk import word_tokenize
@@ -33,6 +32,17 @@ from nltk import pos_tag
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.metrics.pairwise import cosine_similarity
 stopwords = set(stopwords.words('english'))
+
+# Load pre-trained BERT model
+tokenizer = AutoTokenizer.from_pretrained("sentence-transformers/all-MiniLM-L6-v2")
+model = AutoModel.from_pretrained("sentence-transformers/all-MiniLM-L6-v2")
+
+# Load dataset
+giftsFile = "./giftDB.csv"
+giftsData = pd.read_csv(giftsFile).dropna()
+preprocessed_giftsData = giftsData.copy()
+
+app = Flask(__name__)
 
 def calculate_tf_idf(word, gift_descriptions, gift_word_counts, word_document_counts):
     # Calculate TF-IDF any given word
@@ -184,9 +194,6 @@ def calculate_tf_idf_vector(word_counts, description, word_document_counts):
         tf_idf_vector[word] = term_frequency * inverse_document_frequency
     return tf_idf_vector
 
-tokenizer = AutoTokenizer.from_pretrained("sentence-transformers/all-MiniLM-L6-v2")
-model = AutoModel.from_pretrained("sentence-transformers/all-MiniLM-L6-v2")
-
 def get_bert_embeddings(texts):
     """Generates embeddings for a list of texts using BERT."""
     tokens = tokenizer(
@@ -298,6 +305,7 @@ def recommend_gifts(user_input, gift_data):
 
     return recommendations
 
+'''
 def main():
     while True:
         print("\nWelcome to Surprise Me! Please input your option.")
@@ -315,7 +323,47 @@ def main():
             break
         else:
             print("Invalid input. Please choose 1 or 2.")
+'''
+# Keep track of user session state
+user_state = {"current_index": 0, "batch_size": 5}
 
+@app.route('/')
+def home():
+    return render_template('index.html')
+
+@app.route('/recommend', methods=['POST'])
+def recommend_main():
+    # Get user input
+    user_input = request.form.get("user_input")
+
+    # Get gift recommendations
+    recommendations = recommend_gifts(user_input, preprocessed_giftsData).to_dict(orient='records')
+
+    # Fetch the next batch of gifts (5 at a time)
+    start_index = user_state["current_index"]
+    batch_size = user_state["batch_size"]
+    end_index = start_index + batch_size
+
+    # Check if there are more gifts to show
+    if start_index >= len(recommendations):
+        return jsonify({"message": "No more gifts available. Thank you for using Surprise Me!"}), 200
+    
+    # Get the next batch
+    gift_batch = recommendations[start_index:end_index]
+    user_state["current_index"] = end_index  # Update to the next starting point
+
+    return jsonify({
+        "gifts": gift_batch,
+        "message": "Would you like to see the next 5 recommendations?"
+    }), 200
+
+@app.route('/reset', methods=['POST'])
+def reset():
+    # Reset the state for a new session
+    user_state["current_index"] = 0
+    return jsonify({"message": "Thank you for using Surprise Me! Goodbye!"}), 200
+
+'''
 def find_new_gift():
     print("\nLet's find a new gift!")
     # Get user input for gift preferences
@@ -354,7 +402,11 @@ def find_new_gift():
 
         # Update start index for the next page
         start_index += page_size
+'''
 
+if __name__ == '__main__':
+    app.run(debug=True)
+'''
 # Example usage
 if __name__ == "__main__":
     giftsFile = "./giftDB.csv"
@@ -363,4 +415,5 @@ if __name__ == "__main__":
     #Preprocess data
     preprocessed_giftsData = giftsData.copy()
     main()
+'''
 
