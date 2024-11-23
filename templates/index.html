@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Surprise Me</title>
+</head>
+<body>
+    <h1>Welcome to Surprise Me!</h1>
+    
+    <form id="userInputForm" method="POST" action="/recommend">
+        <label for="user_input">Describe the gift or holiday preferences in one sentence:</label>
+        <input type="text" id="user_input" name="user_input" required>
+        <button type="submit">Get Recommendations</button>
+    </form>
+    
+    <div id="giftList"></div>
+    <!-- Load More button, hidden initially -->
+    <button id="loadMoreBtn" style="display:none;" onclick="loadMoreGifts()">Load More</button>
+    
+    <!-- Exit button hidden initially -->
+    <button id="exitBtn" style="display:none;" onclick="resetSession()">Exit</button>
+
+    <script>
+        // Handle form submission for getting gift recommendations
+        const form = document.getElementById('userInputForm');
+        form.addEventListener('submit', function(event) {
+            event.preventDefault();  // Prevent page refresh
+            userInput = document.getElementById('user_input').value;
+            currentIndex = 0;  // Reset the index for a new search
+            getRecommendations();
+        });
+
+        // Function to fetch recommendations
+        function getRecommendations() {
+            const formData = new FormData();
+            formData.append('user_input', userInput);
+            
+            fetch('/recommend', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                const giftList = document.getElementById('giftList');
+                giftList.innerHTML = '';  // Clear previous gifts
+                
+                if (data.gifts && data.gifts.length > 0) {
+                    data.gifts.forEach(gift => {
+                        const giftElement = document.createElement('div');
+                        giftElement.innerHTML = `
+                            <h3>${gift["Gift Title"]}</h3>
+                            <p>${gift["Gift Summary"]}</p>
+                            <p>Price Range: ${gift["Budget"]} - ${gift["Max Budget"]}</p>
+                            <a href="${gift["Link"]}" target="_blank">Buy it here!</a>
+                            <hr>
+                        `;
+                        giftList.appendChild(giftElement);
+                    });
+                    // Show or hide the "Load More" button based on the message from the backend (if ther
+                    // is more recommendations to show)
+                    const loadMoreBtn = document.getElementById('loadMoreBtn');
+                    if (data.message.includes("Would you like to see the next 5 recommendations?")) {
+                        loadMoreBtn.style.display = 'inline-block';
+                    } else {
+                        loadMoreBtn.style.display = 'none';
+                    }       
+                     // Show the "Exit" button     
+                    document.getElementById('exitBtn').style.display = 'inline-block';
+                } else {
+                    giftList.innerHTML = `<p>${data.message}</p>`;
+                }
+            });
+        }
+
+        // Load more gifts when the "Load More" button is clicked
+        function loadMoreGifts() {
+            const formData = new FormData();
+            formData.append('user_input', userInput);
+            
+            fetch('/recommend', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                const giftList = document.getElementById('giftList');
+                
+                if (data.gifts && data.gifts.length > 0) {
+                    data.gifts.forEach(gift => {
+                        const giftElement = document.createElement('div');
+                        giftElement.innerHTML = `
+                            <h3>${gift["Gift Title"]}</h3>
+                            <p>${gift["Gift Summary"]}</p>
+                            <p>Price Range: ${gift["Budget"]} - ${gift["Max Budget"]}</p>
+                            <a href="${gift["Link"]}" target="_blank">Buy it here!</a>
+                            <hr>
+                        `;
+                        giftList.appendChild(giftElement);
+                    });
+
+                    // Hide the "Load More" button if no more recommendations are available
+                    const loadMoreBtn = document.getElementById('loadMoreBtn');
+                    if (data.message.includes("No more gifts available.")) {
+                        loadMoreBtn.style.display = 'none';
+                    }
+                    // Show the exit button
+                    document.getElementById('exitBtn').style.display = 'inline-block';
+                } else {
+                    giftList.innerHTML = `<p>${data.message}</p>`;
+                }
+            });
+        }
+        // Reset the session
+        function resetSession() {
+            fetch('/reset', { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('giftList').innerHTML = `<p>${data.message}</p>`;
+
+                    // Clear the input field
+                    document.getElementById('user_input').value = '';
+
+                    // Hide Load More and Exit buttons
+                    loadMoreBtn.style.display = 'none';
+                    document.getElementById('exitBtn').style.display = 'none';
+                });
+        }
+    </script>
+</body>
+</html>
